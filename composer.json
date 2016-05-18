@@ -2,7 +2,7 @@
     "name": "frobou/pdo-auto-validator",
     "description": "Auto validation for PDO",
     "type": "library",
-    "version": "1.0.0",
+    "version": "1.0.0-pre-alpha",
     "homepage": "http://frobou.com.br",
     "license": "MIT",
     "authors": [
