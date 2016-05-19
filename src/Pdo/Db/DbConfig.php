@@ -4,7 +4,7 @@ namespace Frobou\Pdo\Db;
 
 final class DbConfig {
 
-    private $servertype = 'mysql';
+    private $servertype;
     private $servername;
     private $username;
     private $password;

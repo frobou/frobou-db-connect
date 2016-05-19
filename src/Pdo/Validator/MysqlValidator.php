@@ -2,11 +2,12 @@
 
 namespace Frobou\Pdo\Validator;
 
+use Frobou\Pdo\Db\DbAccess;
 use Frobou\Pdo\Validator\Interfaces\PdoValidatorInterface;
 
 class MysqlValidator implements PdoValidatorInterface {
-
-    public function setTableName($operation, $query)
+    
+    private function setTableName($operation, $query)
     {
         switch (strtoupper(trim($operation))){
             case 'INSERT':
@@ -23,8 +24,8 @@ class MysqlValidator implements PdoValidatorInterface {
         }
         return $table;
     }
-    
-    public function Validate($data){
+
+    private function Validate($data){
         $required = [];
         $size = [];
         //DATA_TYPE
@@ -39,7 +40,7 @@ class MysqlValidator implements PdoValidatorInterface {
                 default :
                     break;
             }
-            
+
             if ($value->IS_NULLABLE == 'NO'){
                 array_push($required, $value->COLUMN_NAME);
             }
@@ -58,7 +59,24 @@ class MysqlValidator implements PdoValidatorInterface {
                 $size[$value->COLUMN_NAME] = $num;
             }
         }
-//        var_dump($data);die;
         return ['required' => $required, 'type' => $type, 'size' => $size];
     }
+    
+    public function getTableStruct($operation, $query, DbAccess $db){
+        $valid = $this->setTableName($operation, $query);
+        if ($valid === false) {
+            return false;
+        }
+        $sql = "select COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, "
+            . "NUMERIC_PRECISION, COLUMN_DEFAULT, COLUMN_KEY, EXTRA, COLUMN_TYPE "
+            . "from information_schema.columns cols "
+            . "where table_schema = '{$db->getSchema()}' and TABLE_NAME = '{$valid[1]}' "
+            . "and cols.EXTRA not like '%auto_increment%'";
+        $table = $db->select($sql);
+        if (count($table) > 0) {
+            return $this->Validate($table);
+        }
+        return false;
+    }
+    
 }

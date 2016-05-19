@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author Fabio Pimenta <blobs@frobou.com.br>
  * @version 1.0.0
  * @license MIT
@@ -15,7 +15,8 @@ use PDO;
 use PDOException;
 use PDOStatement;
 
-class DbAccess {
+class DbAccess
+{
 
     private $config;
 
@@ -36,12 +37,12 @@ class DbAccess {
     private $channel;
 
     /**
-     * @var DbMessagesInterface 
+     * @var DbMessagesInterface
      */
     private $messages;
 
     /**
-     * @var PdoValidatorInterface 
+     * @var PdoValidatorInterface
      */
     private $validator;
 
@@ -57,14 +58,19 @@ class DbAccess {
         $this->validator = $validator;
     }
 
+    public function getSchema()
+    {
+        return $this->config->getDbname();
+    }
+
     private function connect()
     {
         try {
             $this->conn = new PDO("{$this->config->getServertype()}:"
-                    . "host={$this->config->getServername()};"
-                    . "dbname={$this->config->getDbname()};"
-                    . "charset={$this->config->getCharset()};"
-                    . "port={$this->config->getPort()}", $this->config->getUsername(), $this->config->getPassword());
+                . "host={$this->config->getServername()};"
+                . "dbname={$this->config->getDbname()};"
+                . "charset={$this->config->getCharset()};"
+                . "port={$this->config->getPort()}", $this->config->getUsername(), $this->config->getPassword());
             if (count($this->config->getAttributes() > 0)) {
                 foreach ($this->config->getAttributes() as $attr) {
                     $this->conn->setAttribute($attr['param'], $attr['value']);
@@ -138,6 +144,27 @@ class DbAccess {
         $this->setError('0001', trim($error));
     }
 
+    private function getTotalCount(){
+        switch (strtoupper($this->config->getDbname())) {
+            case 'MYSQL':
+                return $this->conn->query('SELECT FOUND_ROWS() as rowcount;')->fetch(PDO::FETCH_COLUMN);
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Send info to log
+     * @param $operation
+     * @param $query
+     * @param $params
+     */
+    private function logInfo($operation, $query, $params){
+        if ((!is_null($this->logger)) && (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG')) {
+            $this->logger->info($operation, ['Query' => $this->paramSubst($query, $params)]);
+        }
+    }
+
     private function execute($operation, $query, $params, $fetch_mode = PDO::FETCH_OBJ, $has_count = false)
     {
         if ($this->prepare($query, $params) !== true) {
@@ -149,16 +176,12 @@ class DbAccess {
             $this->stmt->execute();
             $result = $this->stmt->fetchAll();
             if ($has_count) {
-                $result['rowcount'] = $this->conn->query('SELECT FOUND_ROWS() as rowcount;')->fetch(PDO::FETCH_COLUMN);
+                $result['rowcount'] = $this->getTotalCount();
             }
-            if ((!is_null($this->logger)) && (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG')) {
-                $this->logger->info($operation, ['Query' => $this->paramSubst($query, $params)]);
-            }
+            $this->logInfo($operation, $query, $params);
         } else {
             $result = $this->stmt->execute();
-            if ((!is_null($this->logger)) && (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG')) {
-                $this->logger->info($operation, ['Query' => $this->paramSubst($query, $params)]);
-            }
+            $this->logInfo($operation, $query, $params);
         }
         if ($this->stmt->errorCode() > 0) {
             $error = $this->stmt->errorInfo();
@@ -168,15 +191,15 @@ class DbAccess {
         if ($operation === 'insert') {
             $this->last_id = $this->conn->lastInsertId();
             if ($this->last_id == 0) {
-                return($this->messages->getNotInserted());
+                return ($this->messages->getNotInserted());
             }
         } else {
             $this->row_count = $this->stmt->rowCount();
             if ($this->row_count == 0) {
                 if ($operation === 'delete') {
-                    return($this->messages->getNotDeleted());
+                    return ($this->messages->getNotDeleted());
                 } else if ($operation === 'update') {
-                    return($this->messages->getNotUpdated());
+                    return ($this->messages->getNotUpdated());
                 }
             }
         }
@@ -196,24 +219,20 @@ class DbAccess {
         return $this->execute('update', $query, $params);
     }
 
+    /**
+     * Make an insertion on SGDB
+     * @param $query
+     * @param array $params
+     * @return array|bool
+     */
     public function insert($query, $params = [])
     {
         if (!is_null($this->validator)) {
-            $valid = $this->validator->setTableName('insert', $query);
-            if ($valid === false) {
-                return $valid;
-            }
-            $sql = "select COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, "
-                    . "NUMERIC_PRECISION, COLUMN_DEFAULT, COLUMN_KEY, EXTRA, COLUMN_TYPE "
-                    . "from information_schema.columns cols "
-                    . "where table_schema = '{$this->config->getDbname()}' and TABLE_NAME = '{$valid[1]}' "
-                    . "and cols.EXTRA not like '%auto_increment%'";
-            $table = $this->select($sql);
-            if (count($table) > 0) {
-                $out = $this->validator->Validate($table);
+            $valid = $this->validator->getTableStruct('insert', $query, $this);
+            if ($valid === false){
+                return false;
             }
         }
-        var_dump($out);die;
         return $this->execute('insert', $query, $params);
     }
 

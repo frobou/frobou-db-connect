@@ -2,8 +2,10 @@
 
 namespace Frobou\Pdo\Validator\Interfaces;
 
+use Frobou\Pdo\Db\DbAccess;
+
 interface PdoValidatorInterface {
 
-    public function Validate($data);
-
+    public function getTableStruct($operation, $query, DbAccess $db);
+    
 }
