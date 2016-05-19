@@ -4,7 +4,27 @@ namespace Frobou\Pdo\Validator;
 
 abstract class AbstractValidator {
 
-    public function jsonValidateStructure($json, $header, $optional = [])
+    protected function validateNotEmpty(){
+        
+    }
+
+    protected function validateString(){
+        
+    }
+    
+    protected function validateInteger(){
+        
+    }
+    
+    protected function validateBoolean(){
+        
+    }
+    
+    protected function validateUnique(){
+        
+    }
+
+    protected function jsonValidateStructure($json, $header, $optional = [])
     {
         $a['not_found'] = [];
         $a['not_allowed'] = [];

@@ -229,8 +229,8 @@ class DbAccess
     {
         if (!is_null($this->validator)) {
             $valid = $this->validator->getTableStruct('insert', $query, $this);
-            if ($valid === false){
-                return false;
+            if ($valid !== true){
+                return $valid;
             }
         }
         return $this->execute('insert', $query, $params);
