@@ -11,7 +11,8 @@ namespace Frobou\Pdo\Validator;
 use Frobou\Pdo\Db\DbAccess;
 use Frobou\Pdo\Validator\Interfaces\PdoValidatorInterface;
 
-class MysqlValidator extends AbstractValidator implements PdoValidatorInterface {
+class MysqlValidator extends AbstractValidator implements PdoValidatorInterface
+{
 
     private function setTableName($operation, $query)
     {
@@ -31,7 +32,7 @@ class MysqlValidator extends AbstractValidator implements PdoValidatorInterface 
         return $table;
     }
 
-    private function Validate($data)
+    private function ValidateParte2($data)
     {
         $required = [];
         $size = [];
@@ -67,17 +68,63 @@ class MysqlValidator extends AbstractValidator implements PdoValidatorInterface 
         return true;
     }
 
+    private function Validate($data)
+    {
+        foreach ($data as $value) {
+            if (strpos($value->Extra, 'auto_increment') !== false) {
+                continue;
+            }
+            $ret[$value->Field] = [];
+            $ret[$value->Field]['required'] = $this->validateRequired($value);
+            $ret[$value->Field]['type'] = $this->validateType($value);
+            $ret[$value->Field]['size'] = $this->validateSize($value);
+            $ret[$value->Field]['value'] = $value->Default;
+        }
+        return $ret;
+    }
+
+    private function validateType($data){
+        $ret = '';
+        $regex = '/^[a-z]{0,}/';
+        if (preg_match_all($regex, $data->Type, $s_ret) !== 0) {
+            foreach ($s_ret[0] as $s){
+                $ret .= $s;
+            }
+        }
+        return $ret;
+    }
+
+    private function validateSize($data){
+        $ret = '';
+        $regex = '/[0-9]/';
+        if (preg_match_all($regex, $data->Type, $s_ret) !== 0) {
+            foreach ($s_ret[0] as $s){
+                $ret .= $s;
+            }
+        }
+        return (int)$ret;
+    }
+
+    private function validateRequired($data)
+    {
+        if ($data->Null == 'NO') {
+            return true;
+        }
+        return false;
+    }
+
     public function getTableStruct($operation, $query, DbAccess $db)
     {
         $valid = $this->setTableName($operation, $query);
         if ($valid === false) {
             return false;
         }
-        $sql = "select COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, "
-                . "NUMERIC_PRECISION, COLUMN_DEFAULT, COLUMN_KEY, EXTRA, COLUMN_TYPE "
-                . "from information_schema.columns cols "
-                . "where table_schema = '{$db->getSchema()}' and TABLE_NAME = '{$valid[1]}' "
-                . "and cols.EXTRA not like '%auto_increment%'";
+//        $sql = "select COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, "
+//                . "NUMERIC_PRECISION, COLUMN_DEFAULT, COLUMN_KEY, EXTRA, COLUMN_TYPE "
+//                . "from information_schema.columns cols "
+//                . "where table_schema = '{$db->getSchema()}' and TABLE_NAME = '{$valid[1]}' "
+//                . "and cols.EXTRA not like '%auto_increment%'";
+        $sql = "describe {$db->getSchema()}.{$valid[1]}";
         $table = $db->select($sql);
         if (count($table) > 0) {
             return $this->Validate($table);
