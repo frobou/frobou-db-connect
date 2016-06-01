@@ -1,6 +1,6 @@
 <?php
 
-namespace Frobou\Pdo\Validator\Interfaces;
+namespace Frobou\Pdo\Validator\Structure;
 
 use Frobou\Pdo\Db\DbAccess;
 

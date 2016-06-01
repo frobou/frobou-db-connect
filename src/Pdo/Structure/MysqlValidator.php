@@ -1,9 +1,9 @@
 <?php
 
-namespace Frobou\Pdo\Validator;
+namespace Frobou\Pdo\Structure;
 
 use Frobou\Pdo\Db\DbAccess;
-use Frobou\Pdo\Validator\Interfaces\PdoTableStructure;
+use Frobou\Pdo\Structure\Interfaces\PdoTableStructure;
 
 class MysqlValidator implements PdoTableStructure {
 

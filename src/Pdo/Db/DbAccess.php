@@ -10,7 +10,7 @@
 namespace Frobou\Pdo\Db;
 
 use Frobou\Pdo\Db\Interfaces\DbMessagesInterface;
-use Frobou\Pdo\Validator\Interfaces\PdoTableStructure;
+use Frobou\Pdo\Structure\Interfaces\PdoTableStructure;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -43,18 +43,18 @@ class DbAccess {
     /**
      * @var PdoTableStructure
      */
-    private $validator;
+    private $structure;
 
     /**
      * 
      * @param DbConfig $config
      * @param DbMessagesInterface $message
      * @param type $channel
-     * @param PdoTableStructure $validator
+     * @param PdoTableStructure $structure
      * @param type $logger
      * @return boolean
      */
-    public function __construct(DbConfig $config, DbMessagesInterface $message, $channel = 'release', PdoTableStructure $validator = null, $logger = null)
+    public function __construct(DbConfig $config, DbMessagesInterface $message, $channel = 'release', PdoTableStructure $structure = null, $logger = null)
     {
         if (is_null($config)) {
             return false;
@@ -63,7 +63,7 @@ class DbAccess {
         $this->channel = $channel;
         $this->logger = $logger;
         $this->messages = $message;
-        $this->validator = $validator;
+        $this->structure = $structure;
     }
 
     /**
@@ -82,7 +82,10 @@ class DbAccess {
      */
     public function getTableStructure($table_name)
     {
-        return $this->validator->getTableStructure($table_name, $this);
+        if (!is_null($this->structure)) {
+            return $this->structure->getTableStructure($table_name, $this);
+        }
+        return false;
     }
 
     /**
