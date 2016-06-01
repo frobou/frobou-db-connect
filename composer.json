@@ -1,8 +1,8 @@
 {
-    "name": "frobou/pdo-auto-validator",
-    "description": "Auto validation for PDO",
+    "name": "frobou/frobou-pdo-access",
+    "description": "Frobou PDO Access Class",
     "type": "library",
-    "version": "1.0.0-pre-alpha",
+    "version": "1.0.0",
     "homepage": "http://frobou.com.br",
     "license": "MIT",
     "authors": [
@@ -11,15 +11,18 @@
             "email": "blobs@frobou.com.br"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Frobou\\": "src/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin/"
+    },
     "require": {
         "php": ">=5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.3"
-    },
-    "autoload": {
-        "psr-4": {
-            "Frobou\\": "src/"
-        }
     }
 }

@@ -10,13 +10,12 @@
 namespace Frobou\Pdo\Db;
 
 use Frobou\Pdo\Db\Interfaces\DbMessagesInterface;
-use Frobou\Pdo\Validator\Interfaces\PdoValidatorInterface;
+use Frobou\Pdo\Validator\Interfaces\PdoTableStructure;
 use PDO;
 use PDOException;
 use PDOStatement;
 
-class DbAccess
-{
+class DbAccess {
 
     private $config;
 
@@ -42,11 +41,20 @@ class DbAccess
     private $messages;
 
     /**
-     * @var PdoValidatorInterface
+     * @var PdoTableStructure
      */
     private $validator;
 
-    public function __construct(DbConfig $config, DbMessagesInterface $message, $channel = 'debug', PdoValidatorInterface $validator = null, $logger = null)
+    /**
+     * 
+     * @param DbConfig $config
+     * @param DbMessagesInterface $message
+     * @param type $channel
+     * @param PdoTableStructure $validator
+     * @param type $logger
+     * @return boolean
+     */
+    public function __construct(DbConfig $config, DbMessagesInterface $message, $channel = 'release', PdoTableStructure $validator = null, $logger = null)
     {
         if (is_null($config)) {
             return false;
@@ -58,30 +66,53 @@ class DbAccess
         $this->validator = $validator;
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getSchema()
     {
         return $this->config->getDbname();
     }
 
+    /**
+     * 
+     * @param type $table_name
+     * @return type
+     */
+    public function getTableStructure($table_name)
+    {
+        return $this->validator->getTableStructure($table_name, $this);
+    }
+
+    /**
+     * 
+     * @return boolean
+     */
     private function connect()
     {
+        $attrs = [];
+        if (count($this->config->getAttributes() > 0)) {
+            foreach ($this->config->getAttributes() as $attr) {
+                $attrs[$attr['param']] = $attr['value'];
+            }
+        }
         try {
             $this->conn = new PDO("{$this->config->getServertype()}:"
-                . "host={$this->config->getServername()};"
-                . "dbname={$this->config->getDbname()};"
-                . "charset={$this->config->getCharset()};"
-                . "port={$this->config->getPort()}", $this->config->getUsername(), $this->config->getPassword());
-            if (count($this->config->getAttributes() > 0)) {
-                foreach ($this->config->getAttributes() as $attr) {
-                    $this->conn->setAttribute($attr['param'], $attr['value']);
-                }
-            }
+                    . "host={$this->config->getServername()};"
+                    . "dbname={$this->config->getDbname()};"
+                    . "charset={$this->config->getCharset()};"
+                    . "port={$this->config->getPort()}", $this->config->getUsername(), $this->config->getPassword(), $attrs);
         } catch (PDOException $e) {
             return false;
         }
         return true;
     }
 
+    /**
+     * 
+     * @return boolean
+     */
     private function disconnect()
     {
         try {
@@ -92,6 +123,10 @@ class DbAccess
         }
     }
 
+    /**
+     * 
+     * @return type
+     */
     private function commit()
     {
         if ($this->begin_transaction) {
@@ -100,6 +135,10 @@ class DbAccess
         return null;
     }
 
+    /**
+     * 
+     * @return type
+     */
     private function rollback()
     {
         if ($this->begin_transaction) {
@@ -108,6 +147,12 @@ class DbAccess
         return null;
     }
 
+    /**
+     * 
+     * @param type $query
+     * @param type $params
+     * @return boolean
+     */
     private function prepare($query, $params)
     {
         if (!$this->begin_transaction) {
@@ -126,6 +171,12 @@ class DbAccess
         return true;
     }
 
+    /**
+     * 
+     * @param type $query
+     * @param type $params
+     * @return type
+     */
     private function paramSubst($query, $params)
     {
         $error = $query;
@@ -135,6 +186,12 @@ class DbAccess
         return $error;
     }
 
+    /**
+     * 
+     * @param type $operation
+     * @param type $query
+     * @param type $params
+     */
     private function errorMount($operation, $query, $params)
     {
         $error = $this->messages->getGeneric($operation);
@@ -144,13 +201,19 @@ class DbAccess
         $this->setError('0001', trim($error));
     }
 
-    private function getTotalCount(){
+    /**
+     * 
+     * @return integer
+     */
+    private function getTotalCount()
+    {
         switch (strtoupper($this->config->getDbname())) {
             case 'MYSQL':
                 return $this->conn->query('SELECT FOUND_ROWS() as rowcount;')->fetch(PDO::FETCH_COLUMN);
             default:
                 break;
         }
+        return 0;
     }
 
     /**
@@ -159,12 +222,22 @@ class DbAccess
      * @param $query
      * @param $params
      */
-    private function logInfo($operation, $query, $params){
+    private function logInfo($operation, $query, $params)
+    {
         if ((!is_null($this->logger)) && (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG')) {
             $this->logger->info($operation, ['Query' => $this->paramSubst($query, $params)]);
         }
     }
 
+    /**
+     * 
+     * @param type $operation
+     * @param type $query
+     * @param type $params
+     * @param type $fetch_mode
+     * @param type $has_count
+     * @return boolean
+     */
     private function execute($operation, $query, $params, $fetch_mode = PDO::FETCH_OBJ, $has_count = false)
     {
         if ($this->prepare($query, $params) !== true) {
@@ -173,7 +246,10 @@ class DbAccess
         }
         if ($operation === 'select') {
             $this->stmt->setFetchMode($fetch_mode);
-            $this->stmt->execute();
+            if ($this->stmt->execute() === false) {
+                $this->errorMount($operation, $query, $params);
+                return false;
+            }
             $result = $this->stmt->fetchAll();
             if ($has_count) {
                 $result['rowcount'] = $this->getTotalCount();
@@ -209,11 +285,25 @@ class DbAccess
         return $result;
     }
 
+    /**
+     * 
+     * @param type $query
+     * @param type $params
+     * @param type $fetch_mode
+     * @param type $has_count
+     * @return type
+     */
     public function select($query, $params = [], $fetch_mode = PDO::FETCH_OBJ, $has_count = false)
     {
         return $this->execute('select', $query, $params, $fetch_mode, $has_count);
     }
 
+    /**
+     * 
+     * @param type $query
+     * @param type $params
+     * @return type
+     */
     public function update($query, $params = [])
     {
         return $this->execute('update', $query, $params);
@@ -227,26 +317,35 @@ class DbAccess
      */
     public function insert($query, $params = [])
     {
-        if (!is_null($this->validator)) {
-            $valid = $this->validator->getTableStruct('insert', $query, $this);
-            if ($valid !== true){
-                return $valid;
-            }
-        }
         return $this->execute('insert', $query, $params);
     }
 
+    /**
+     * 
+     * @param type $query
+     * @param type $params
+     * @return type
+     */
     public function delete($query, $params = [])
     {
         return $this->execute('delete', $query, $params);
     }
 
+    /**
+     * 
+     * @param type $code
+     * @param type $text
+     */
     private function setError($code, $text)
     {
         $this->error[1] = $code;
         $this->error[2] = $text;
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getError()
     {
         if (isset($this->error)) {
@@ -254,6 +353,10 @@ class DbAccess
         }
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getLastId()
     {
         if (isset($this->last_id)) {
@@ -261,6 +364,10 @@ class DbAccess
         }
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getRowCount()
     {
         if (isset($this->row_count)) {
@@ -268,6 +375,10 @@ class DbAccess
         }
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function beginTransaction()
     {
         $this->connect();
@@ -275,11 +386,19 @@ class DbAccess
         return $this->conn->beginTransaction();
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function cancel()
     {
         return $this->conn->rollBack();
     }
 
+    /**
+     * 
+     * @return boolean
+     */
     public function save()
     {
         $comm = $this->commit();
