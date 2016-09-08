@@ -268,18 +268,18 @@ class DbAccess
         if ($operation === 'insert') {
             $this->last_id = $this->conn->lastInsertId();
             if ($this->last_id == 0) {
-                $this->setError(0, $this->messages->getNotInserted());
-                return ($this->messages->getNotInserted());
+                $this->setError('I-9990', $this->messages->getNotInserted());
+                return false;
             }
         } else {
             $this->row_count = $this->stmt->rowCount();
             if ($this->row_count == 0) {
                 if ($operation === 'delete') {
-                    $this->setError(0, $this->messages->getNotDeleted());
-                    return ($this->messages->getNotDeleted());
+                    $this->setError('I-9991', $this->messages->getNotDeleted());
+                    return false;
                 } else if ($operation === 'update') {
-                    $this->setError(0, $this->messages->getNotUpdated());
-                    return ($this->messages->getNotUpdated());
+                    $this->setError('I-9992', $this->messages->getNotUpdated());
+                    return false;
                 }
             }
         }
