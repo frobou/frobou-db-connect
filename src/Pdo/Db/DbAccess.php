@@ -268,14 +268,17 @@ class DbAccess
         if ($operation === 'insert') {
             $this->last_id = $this->conn->lastInsertId();
             if ($this->last_id == 0) {
+                $this->setError(0, $this->messages->getNotInserted());
                 return ($this->messages->getNotInserted());
             }
         } else {
             $this->row_count = $this->stmt->rowCount();
             if ($this->row_count == 0) {
                 if ($operation === 'delete') {
+                    $this->setError(0, $this->messages->getNotDeleted());
                     return ($this->messages->getNotDeleted());
                 } else if ($operation === 'update') {
+                    $this->setError(0, $this->messages->getNotUpdated());
                     return ($this->messages->getNotUpdated());
                 }
             }
