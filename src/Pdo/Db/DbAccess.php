@@ -3,7 +3,7 @@
 namespace Frobou\Pdo\Db;
 
 use Frobou\Pdo\Db\Interfaces\DbMessagesInterface;
-use Frobou\Pdo\Structure\Interfaces\PdoTableStructure;
+use Frobou\Pdo\Structure\Ifaces\PdoTableStructure;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -119,30 +119,6 @@ class DbAccess
         } catch (PDOException $e) {
             return false;
         }
-    }
-
-    /**
-     *
-     * @return type
-     */
-    private function commit()
-    {
-        if ($this->begin_transaction) {
-            return $this->conn->commit();
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @return type
-     */
-    private function rollback()
-    {
-        if ($this->begin_transaction) {
-            return $this->conn->rollback();
-        }
-        return null;
     }
 
     /**
@@ -265,15 +241,16 @@ class DbAccess
             $this->setError("I-{$error[1]}", $error[2]);
             return false;
         }
+        //problema com lastid quando tabela nao tem chave primaria
         if ($operation === 'insert') {
             $this->last_id = $this->conn->lastInsertId();
-            if ($this->last_id == 0) {
+            if ($this->last_id == 0 && !$this->begin_transaction) {
                 $this->setError('I-9990', $this->messages->getNotInserted());
                 return false;
             }
         } else {
             $this->row_count = $this->stmt->rowCount();
-            if ($this->row_count == 0) {
+            if ($this->row_count == 0 && !$this->begin_transaction) {
                 if ($operation === 'delete') {
                     $this->setError('I-9991', $this->messages->getNotDeleted());
                     return false;
@@ -386,9 +363,46 @@ class DbAccess
      */
     public function beginTransaction()
     {
-        $this->connect();
         $this->begin_transaction = true;
+        $this->connect();
+        if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+            $this->logger->info('start transaction', ['status' => $this->begin_transaction]);
+        }
         return $this->conn->beginTransaction();
+    }
+
+    /**
+     *
+     * @return type
+     */
+    private function commit()
+    {
+        if ($this->begin_transaction) {
+            $sts = $this->conn->commit();
+            if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+                $this->logger->info('commit', ['status' => $sts]);
+            }
+            $this->begin_transaction = false;
+            return $sts;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @return type
+     */
+    private function rollback()
+    {
+        if ($this->begin_transaction) {
+            $sts = $this->conn->rollback();
+            if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+                $this->logger->info('rollback', ['status' => $sts]);
+            }
+            $this->begin_transaction = false;
+            return $sts;
+        }
+        return null;
     }
 
     /**
@@ -397,7 +411,12 @@ class DbAccess
      */
     public function cancel()
     {
-        return $this->conn->rollBack();
+        $out = $this->conn->rollBack();
+        if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+            $this->logger->info('cancel transaction', ['status' => $out]);
+        }
+        $this->begin_transaction = false;
+        return $out;
     }
 
     /**
@@ -411,7 +430,7 @@ class DbAccess
             if ($comm === true) {
                 return true;
             } else {
-                $this->rollback();
+                $this->conn->rollBack();
                 return false;
             }
         }
