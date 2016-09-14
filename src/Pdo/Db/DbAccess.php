@@ -181,7 +181,7 @@ class DbAccess
      */
     private function getTotalCount()
     {
-        switch (strtoupper($this->config->getDbname())) {
+        switch (strtoupper($this->config->getServertype())) {
             case 'MYSQL':
                 return $this->conn->query('SELECT FOUND_ROWS() as rowcount;')->fetch(PDO::FETCH_COLUMN);
             default:
