@@ -15,7 +15,7 @@ final class DbConfig {
 
     function getServertype()
     {
-        return $this->servertype;
+        return strtolower($this->servertype);
     }
 
     function getServername()
