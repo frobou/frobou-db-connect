@@ -1,6 +1,4 @@
 composer.lock
-nbproject
-html
 vendor
 .idea
-composer.phar
+/bin/

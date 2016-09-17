@@ -101,7 +101,7 @@ class DbAccess
                 . "charset={$this->config->getCharset()};"
                 . "port={$this->config->getPort()}", $this->config->getUsername(), $this->config->getPassword(), $attrs);
         } catch (PDOException $e) {
-            $this->setError($e->getCode(), 'SGDB access error');
+            $this->setError($e->getCode(), 'SGDB connect error');
             return false;
         }
         return true;
