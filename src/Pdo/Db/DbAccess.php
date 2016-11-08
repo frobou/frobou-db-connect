@@ -27,7 +27,7 @@ class DbAccess
     private $row_count;
     private $begin_transaction;
     private $logger;
-    private $channel;
+    private $debug;
 
     /**
      * @var DbMessagesInterface
@@ -43,18 +43,18 @@ class DbAccess
      *
      * @param DbConfig $config
      * @param DbMessagesInterface $message
-     * @param type $channel
+     * @param type $debug
      * @param PdoTableStructure $structure
      * @param type $logger
      * @return boolean
      */
-    public function __construct(DbConfig $config, DbMessagesInterface $message, $channel = 'release', PdoTableStructure $structure = null, $logger = null)
+    public function __construct(DbConfig $config, DbMessagesInterface $message, $debug = false, PdoTableStructure $structure = null, $logger = null)
     {
         if (is_null($config)) {
             return false;
         }
         $this->config = $config;
-        $this->channel = $channel;
+        $this->debug = $debug;
         $this->logger = $logger;
         $this->messages = $message;
         $this->structure = $structure;
@@ -169,7 +169,7 @@ class DbAccess
     private function errorMount($operation, $query, $params)
     {
         $error = $this->messages->getGeneric($operation);
-        if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+        if (!is_null($this->logger) && $this->debug === true) {
             $error .= ' - Query: ' . $this->paramSubst($query, $params);
         }
         $this->setError('0001', trim($error));
@@ -198,7 +198,7 @@ class DbAccess
      */
     private function logInfo($operation, $query, $params)
     {
-        if ((!is_null($this->logger)) && (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG')) {
+        if (!is_null($this->logger) && $this->debug === true) {
             $this->logger->info($operation, ['Query' => $this->paramSubst($query, $params)]);
         }
     }
@@ -365,7 +365,7 @@ class DbAccess
     {
         $this->begin_transaction = true;
         $this->connect();
-        if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+        if (!is_null($this->logger) && $this->debug === true) {
             $this->logger->info('start transaction', ['status' => $this->begin_transaction]);
         }
         return $this->conn->beginTransaction();
@@ -379,7 +379,7 @@ class DbAccess
     {
         if ($this->begin_transaction) {
             $sts = $this->conn->commit();
-            if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+            if (!is_null($this->logger) && $this->debug === true) {
                 $this->logger->info('commit', ['status' => $sts]);
             }
             $this->begin_transaction = false;
@@ -396,7 +396,7 @@ class DbAccess
     {
         if ($this->begin_transaction) {
             $sts = $this->conn->rollback();
-            if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+            if (!is_null($this->logger) && $this->debug === true) {
                 $this->logger->info('rollback', ['status' => $sts]);
             }
             $this->begin_transaction = false;
@@ -412,7 +412,7 @@ class DbAccess
     public function cancel()
     {
         $out = $this->conn->rollBack();
-        if (strtoupper($this->channel) === 'DEV' || strtoupper($this->channel) === 'DEBUG') {
+        if (!is_null($this->logger) && $this->debug === true) {
             $this->logger->info('cancel transaction', ['status' => $out]);
         }
         $this->begin_transaction = false;
