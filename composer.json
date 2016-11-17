@@ -1,8 +1,7 @@
 {
     "name": "frobou/frobou-pdo-access",
-    "description": "Frobou PDO Access Class",
+    "description": "Frobou PDO Access",
     "type": "library",
-    "version": "1.0.0",
     "homepage": "http://frobou.com.br",
     "license": "MIT",
     "authors": [
