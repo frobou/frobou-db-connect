@@ -2,71 +2,58 @@
 
 namespace Frobou\Pdo\Db;
 
-use Monolog\Logger;
-
 abstract class FrobouPdoAccess
 {
-    /**
-     * @var FrobouPdoConfig
-     */
-    protected $config;
-    /**
-     * @var bool
-     */
-    protected $debug;
-    /**
-     * @var Logger
-     */
-    protected $logger;
-
-    private function connect($db_name = null)
+    private function selectDb($db_name)
     {
         if (is_null($db_name)) {
-            $db_name = $this->config->getDefaultDb();
-        } else {
-            $this->config->verifica_se_banco_existe($db_name);
+            return $this->config->getDefaultDb();
         }
-        $attrs = [];
-        if (count($this->config->getAttributes() > 0)) {
-            foreach ($this->config->getAttributes() as $attr) {
-                $attrs[$attr['param']] = $attr['value'];
+        return $db_name;
+    }
+
+    public function beginTransaction($db_name = null)
+    {
+        $db_name = $this->selectDb($db_name);
+        $this->transaction[$db_name] = true;
+        $this->connect($db_name);
+        if (!is_null($this->logger) && $this->debug === true) {
+            $this->logger->info('start transaction', ['status' => $this->transaction]);
+        }
+        return $this->conn[$db_name]->beginTransaction();
+    }
+
+    public function commit($db_name = null)
+    {
+        $db_name = $this->selectDb($db_name);
+        if (isset($this->transaction[$db_name]) && $this->transaction[$db_name]) {
+            $sts = $this->conn[$db_name]->commit();
+            if (!is_null($this->logger) && $this->debug === true) {
+                $this->logger->info('commit', ['status' => $sts]);
             }
+            $this->transaction[$db_name] = false;
+            return $sts;
         }
-        try {
-            $this->conn = new PDO("{$this->config->getServertype()}:"
-                . "host={$this->config->getServername()};"
-                . "dbname={$this->config->getDbname()};"
-                . "charset={$this->config->getCharset()};"
-                . "port={$this->config->getPort()}", $this->config->getUsername(), $this->config->getPassword(), $attrs);
-        } catch (PDOException $e) {
-            $this->setError($e->getCode(), 'SGDB connect error');
-            return false;
+        return false;
+    }
+
+    public function rollback($db_name = null)
+    {
+        $db_name = $this->selectDb($db_name);
+        if (isset($this->transaction[$db_name]) && $this->transaction[$db_name]) {
+            $sts = $this->conn[$db_name]->rollback();
+            if (!is_null($this->logger) && $this->debug === true) {
+                $this->logger->info('rollback', ['status' => $sts]);
+            }
+            $this->transaction[$db_name] = false;
+            return $sts;
         }
-        return true;
+        return false;
     }
 
-    private function disconnect()
+    public function select($query, $db_name = null, $params = [], $fetch_mode = \PDO::FETCH_OBJ, $has_count = false)
     {
-
-    }
-
-    public function startTransaction()
-    {
-
-    }
-
-    public function commit()
-    {
-
-    }
-
-    public function rollback()
-    {
-
-    }
-
-    public function select()
-    {
+        return $this->execute('select', $query, $db_name, $params, $fetch_mode, $has_count);
     }
 
     public function insert()
@@ -86,12 +73,39 @@ abstract class FrobouPdoAccess
      */
     public function stats()
     {
-
+        if (isset($this->error)) {
+            return $this->error;
+        }
+        return null;
     }
 
-    private function execute()
+    private function prepare($query, $db_name, $params)
     {
+        if (!$this->transaction) {
+            if (!$this->connect()) {
+                return null;
+            }
+        }
+        if (!$this->stmt = $this->conn->prepare($query)) {
+            return null;
+        }
+        if (count($params) > 0) {
+            foreach ($params as $param) {
+                $this->stmt->bindValue($param['param'], $param['value'], $param['type']);
+            }
+        }
+        return true;
+    }
 
+    private function execute($operation, $query, $db_name, $params, $fetch_mode = \PDO::FETCH_OBJ, $has_count = false)
+    {
+        if ($this->prepare($query, $db_name, $params) !== true) {
+            if (!is_null($this->getError())) {
+                return false;
+            }
+            $this->errorMount($operation, $query, $params);
+            return false;
+        }
     }
 
 }

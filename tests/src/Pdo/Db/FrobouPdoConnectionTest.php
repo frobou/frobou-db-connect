@@ -5,25 +5,31 @@ namespace Frobou\Pdo\Db;
 class FrobouPdoConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /**
-     * @var FrobouPdoConnection
-     */
-    private $conn;
-
-    /**
-     * @var FrobouPdoConfig
-     */
-    private $config;
-
-    public function setUp()
+    public function testVerificaSeConstrutorFunciona()
     {
-        $this->config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
-        $this->conn = new FrobouPdoConnection($this->config);
+        $config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
+        $con = new FrobouPdoConnection($config);
+        $this->assertInstanceOf('Frobou\Pdo\Db\FrobouPdoConnection', $con);
     }
 
-    public function testConectaComBancoDefault()
+    public function testConectarComVariosBancos()
     {
-        $this->assertEquals('ispti', $this->config->getDefaultDb());
+        $config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
+        $con = new FrobouPdoConnection($config);
+        $this->assertTrue($con->connect());
+        $this->assertTrue($con->connect('postfix'));
+        $this->assertTrue($con->connect('radius'));
+    }
+
+    /**
+     * @expectedException Frobou\Pdo\Exceptions\FrobouConfigErrorException
+     * @expectedExceptionMessage Database not found
+     */
+    public function testConectarComBancoInformadoFalhando()
+    {
+        $config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
+        $con = new FrobouPdoConnection($config);
+        $con->connect('postconserto');
     }
 
 }
