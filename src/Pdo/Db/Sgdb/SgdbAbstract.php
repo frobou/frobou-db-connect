@@ -1,0 +1,39 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: suporte09
+ * Date: 21/11/16
+ * Time: 09:13
+ */
+
+namespace Frobou\Pdo\Db\Sgdb;
+
+
+abstract class SgdbAbstract implements SgdbInterface
+{
+    protected $transaction;
+    /**
+     * @var \PDO
+     */
+    protected $connection;
+    /**
+     * @var \PDOStatement
+     */
+    protected $stmt = null;
+    /**
+     * @var
+     */
+    protected $logger;
+    /**
+     * @var bool
+     */
+    protected $debug;
+
+    public function __construct($connection, $transaction, $logger = null, $debug = false)
+    {
+        $this->transaction = $transaction;
+        $this->connection = $connection;
+        $this->logger = $logger;
+        $this->debug = $debug;
+    }
+}
