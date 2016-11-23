@@ -1,21 +1,29 @@
 ## frobou-pdo-access ##
 
-ver 0.X
+ver 1.X
 
 usage:
 
-    $database = json_decode(file_get_contents(Functions::getDocumentRoot() . '/../rad-src/database.json'));
-    $config = new DbConfig();
-    $config->setServername($database->server_name)->setPort($database->server_port)
-        ->setUsername($database->user_name)->setPassword($database->user_pass)
-        ->setDbname($database->db_name)->setServertype($database->server_type);
-        $messages = new DbMessages();
-        $this->db = new DbAccess($messages, DEBUG, null, $app['logger']);  //$app['logger'] = monolog
-                
-    protected function selectReturn($sql, $params = [], $fetch_mode = PDO::FETCH_OBJ, $has_count = false) {
-        $ret = $this->db->select($sql, $params, $fetch_mode, $has_count);
-        if ($ret === null || $ret === false) {
-            return $this->db->getError();
-        }
-        return $ret;
-    }
+    $config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
+    $this->con = new FrobouPdoConnection($config, true, $log);
+    //$ConnectionObject->action($query, 'table1 name (empty for default)');
+    $query = 'SELECT * FROM table1 limit 1';
+    $this->con->select($query, 'table1');
+    $query = 'SELECT * FROM table_default limit 1';
+    $this->con->select($query);
+FrobouPdoConnection has transaction support
+
+    $this->con->beginTransaction();
+    $this->con->beginTransaction('table1');
+    $this->con->beginTransaction('table2');
+
+    $query = 'What INTO table (bla-bla-bla) VALUES (bla-bla-bla)';
+    $this->con->insert($query);
+    $this->con->update($query, 'table1');
+    $this->con->delete($query, 'table2');
+
+    if (!$this->con->commit()){
+	    $this->con->rollback();
+	}
+    $this->con->commit('radius');
+    $this->con->commit('postfix');
