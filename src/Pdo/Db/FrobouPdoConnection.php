@@ -44,10 +44,14 @@ class FrobouPdoConnection extends FrobouPdoAccess
         try {
             switch (strtolower($this->configs->connections->{$db_name}->server_type)) {
                 case 'mysql':
+                    $charset = 'utf8';
+                    if (isset($this->configs->connections->{$db_name}->server_charset)){
+                        $charset = $this->configs->connections->{$db_name}->server_charset;
+                    }
                     $this->conn[$db_name] = new \PDO(strtolower("mysql:")
                         . "host={$this->configs->connections->{$db_name}->server_host};"
                         . "dbname={$this->configs->connections->{$db_name}->db_name};"
-                        . "charset={$this->configs->connections->{$db_name}->server_charset};"
+                        . "charset={$charset};"
                         . "port={$this->configs->connections->{$db_name}->server_port}",
                         $this->configs->connections->{$db_name}->user_name,
                         $this->configs->connections->{$db_name}->user_pass);
@@ -62,7 +66,11 @@ class FrobouPdoConnection extends FrobouPdoAccess
             }
             if (isset($this->configs->connections->{$db_name}->attributes)) {
                 foreach ($this->configs->connections->{$db_name}->attributes as $key => $value) {
-                    $this->conn[$db_name]->setAttribute(constant($key), constant($value));
+                    if (is_null(constant($key))){
+                        continue;
+                    }
+                    is_null(constant($value)) ? $val = $value : $val = constant($value);
+                    $this->conn[$db_name]->setAttribute(constant($key), $val);
                 }
             }
         } catch (\PDOException $e) {
