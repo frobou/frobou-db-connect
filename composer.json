@@ -1,5 +1,5 @@
 {
-    "name": "frobou/frobou-db-connection",
+    "name": "frobou/frobou-db-connect",
     "description": "Frobou PDO based Connection",
     "type": "library",
     "homepage": "http://frobou.com.br",
