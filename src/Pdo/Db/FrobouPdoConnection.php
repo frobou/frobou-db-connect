@@ -69,8 +69,16 @@ class FrobouPdoConnection extends FrobouPdoAccess
                     if (is_null(constant($key))){
                         continue;
                     }
-                    is_null(constant($value)) ? $val = $value : $val = constant($value);
-                    $this->conn[$db_name]->setAttribute(constant($key), $val);
+                    try {
+                        $val = constant($value);
+                    } catch (\Exception $e){
+                        $val = $value;
+                    }
+                    try{
+                        $this->conn[$db_name]->setAttribute(constant($key), $val);
+                    } catch (\Exception $e){
+                        throw new FrobouConnectionException($e->getMessage());
+                    }
                 }
             }
         } catch (\PDOException $e) {
