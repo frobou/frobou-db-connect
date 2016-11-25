@@ -1,6 +1,6 @@
 {
-    "name": "frobou/frobou-pdo-access",
-    "description": "Frobou PDO Access",
+    "name": "frobou/frobou-pdo-connection",
+    "description": "Frobou PDO Connection",
     "type": "library",
     "homepage": "http://frobou.com.br",
     "license": "MIT",
