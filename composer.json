@@ -1,6 +1,6 @@
 {
     "name": "frobou/frobou-db-connect",
-    "description": "Frobou PDO Based Connection",
+    "description": "Frobou PDO based Connection",
     "type": "library",
     "homepage": "http://frobou.com.br",
     "license": "MIT",
@@ -20,6 +20,7 @@
     },
     "require": {
         "php": ">=5.4.0",
+        "frobou/frobou-validator": "*",
         "monolog/monolog": "*"
     },
     "require-dev": {
