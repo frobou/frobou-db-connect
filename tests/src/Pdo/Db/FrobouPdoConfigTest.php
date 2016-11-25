@@ -34,7 +34,7 @@ class FrobouPdoConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Frobou\Pdo\Exceptions\FrobouConfigErrorException
-     * @expectedExceptionMessage Config syntax error
+     * @expectedExceptionMessage Incorrect data structure: field(s) server_port not found
      */
     public function testFalhaNaConfiguracaoPorFaltarCampos()
     {
