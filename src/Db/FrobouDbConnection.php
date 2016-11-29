@@ -24,6 +24,7 @@ class FrobouDbConnection extends FrobouDbAccess
     protected $conn = [];
     protected $transaction = [];
     protected $db = [];
+    public $utils;
 
     public function __construct(FrobouDbConfig $config, $debug = false, Logger $logger = null)
     {
@@ -31,6 +32,7 @@ class FrobouDbConnection extends FrobouDbAccess
         $this->debug = $debug;
         $this->logger = $logger;
         $this->default_db = $this->config->getDefaultDb();
+        $this->utils = new FrobouDbUtils();
     }
 
     protected function connect($db_name = null)
