@@ -86,6 +86,7 @@ abstract class FrobouDbAccess
             if (!$this->conn[$db_name]->inTransaction()) {
                 $this->disconnect($db_name);
             }
+            $this->last_id = $db->lastInsertedId();
             return $ret;
         } catch (\PDOException $e) {
             throw new FrobouDbSgdbErrorException($e->getMessage());
@@ -127,10 +128,14 @@ abstract class FrobouDbAccess
      */
     public function stats()
     {
+        $out = [];
         if (isset($this->error)) {
-            return $this->error;
+            $out['error'] = $this->error;
         }
-        return null;
+        if (isset($this->last_id)) {
+            $out['last_id'] = $this->last_id;
+        }
+        return $out;
     }
 
 }
