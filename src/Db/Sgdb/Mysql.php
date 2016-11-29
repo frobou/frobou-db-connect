@@ -1,8 +1,8 @@
 <?php
 
-namespace Frobou\Pdo\Db\Sgdb;
+namespace Frobou\Db\Sgdb;
 
-use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
+use Frobou\Db\Exceptions\FrobouDbSgdbErrorException;
 
 class Mysql extends SgdbAbstract
 {
@@ -10,7 +10,7 @@ class Mysql extends SgdbAbstract
     private function prepare($query, $params)
     {
         if (!$this->stmt = $this->connection->prepare($query)) {
-            throw new FrobouSgdbErrorException('Prepare error');
+            throw new FrobouDbSgdbErrorException('Prepare error');
         }
         if (count($params) > 0) {
             foreach ($params as $param) {
@@ -25,6 +25,10 @@ class Mysql extends SgdbAbstract
         if (!is_null($this->logger) && $this->debug === true) {
             $this->logger->info($operation, ['Query' => $this->paramSubst($query, $params)]);
         }
+    }
+
+    public function lastInsertedId(){
+        return $this->last_id;
     }
 
     private function paramSubst($query, $params)

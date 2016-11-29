@@ -1,6 +1,6 @@
 <?php
 
-namespace Frobou\Pdo\Db\Sgdb;
+namespace Frobou\Db\Sgdb;
 
 interface SgdbInterface
 {

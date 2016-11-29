@@ -1,19 +1,19 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
-use Frobou\Pdo\Db\Sgdb\Mysql;
-use Frobou\Pdo\Db\Sgdb\Postgre;
-use Frobou\Pdo\Db\Sgdb\Sqlite;
-use Frobou\Pdo\Exceptions\FrobouConfigErrorException;
-use Frobou\Pdo\Exceptions\FrobouConnectionException;
-use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
+use Frobou\Db\Sgdb\Mysql;
+use Frobou\Db\Sgdb\Postgre;
+use Frobou\Db\Sgdb\Sqlite;
+use Frobou\Db\Exceptions\FrobouDbConfigErrorException;
+use Frobou\Db\Exceptions\FrobouDbConnectionException;
+use Frobou\Db\Exceptions\FrobouDbSgdbErrorException;
 use Monolog\Logger;
 
-class FrobouPdoConnection extends FrobouPdoAccess
+class FrobouDbConnection extends FrobouDbAccess
 {
     /**
-     * @var FrobouPdoConfig
+     * @var FrobouDbConfig
      */
     protected $config;
     protected $debug;
@@ -25,7 +25,7 @@ class FrobouPdoConnection extends FrobouPdoAccess
     protected $transaction = [];
     protected $db = [];
 
-    public function __construct(FrobouPdoConfig $config, $debug = false, Logger $logger = null)
+    public function __construct(FrobouDbConfig $config, $debug = false, Logger $logger = null)
     {
         $this->config = $config;
         $this->debug = $debug;
@@ -77,12 +77,12 @@ class FrobouPdoConnection extends FrobouPdoAccess
                     try{
                         $this->conn[$db_name]->setAttribute(constant($key), $val);
                     } catch (\Exception $e){
-                        throw new FrobouConnectionException($e->getMessage());
+                        throw new FrobouDbConnectionException($e->getMessage());
                     }
                 }
             }
         } catch (\PDOException $e) {
-            throw new FrobouConnectionException($e->getMessage());
+            throw new FrobouDbConnectionException($e->getMessage());
         }
         return true;
     }
@@ -93,15 +93,15 @@ class FrobouPdoConnection extends FrobouPdoAccess
         try {
             $this->conn[$db_name] = null;
             return true;
-        } catch (PDOException $e) {
-            throw new FrobouConnectionException('Error disconecting from sgdb');
+        } catch (\PDOException $e) {
+            throw new FrobouDbConnectionException('Error disconecting from sgdb');
         }
     }
 
     private function verifica_se_banco_existe($db_name)
     {
         if (!in_array($db_name, $this->config->getDbNames())) {
-            throw new FrobouConfigErrorException('Database not found');
+            throw new FrobouDbConfigErrorException('Database not found');
         }
         return true;
     }
@@ -133,7 +133,7 @@ class FrobouPdoConnection extends FrobouPdoAccess
                 return new Sqlite();
                 break;
             default:
-                throw new FrobouSgdbErrorException();
+                throw new FrobouDbSgdbErrorException();
                 break;
         }
         return $this->db[$db_name];

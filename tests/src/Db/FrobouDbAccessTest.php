@@ -1,23 +1,23 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
-class FrobouPdoAccessTest extends \PHPUnit_Framework_TestCase
+class FrobouDbAccessTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var FrobouPdoConnection
+     * @var FrobouDbConnection
      */
     private $con;
 
     public function setUp()
     {
-        $config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
+        $config = new FrobouDbConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
         $log = new Logger('portal');
         $log->pushHandler(new StreamHandler('log-portal.log', Logger::INFO));
-        $this->con = new FrobouPdoConnection($config, true, $log);
+        $this->con = new FrobouDbConnection($config, true, $log);
     }
 
     public function testBegintransacionSomente()
@@ -83,7 +83,7 @@ class FrobouPdoAccessTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Frobou\Pdo\Exceptions\FrobouSgdbErrorException
+     * @expectedException Frobou\Db\Exceptions\FrobouDbSgdbErrorException
      */
     public function testSelectFalhando()
     {
@@ -113,7 +113,7 @@ class FrobouPdoAccessTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Frobou\Pdo\Exceptions\FrobouSgdbErrorException
+     * @expectedException Frobou\Db\Exceptions\FrobouDbSgdbErrorException
      */
     public function testInsertFalhando()
     {
@@ -137,7 +137,7 @@ class FrobouPdoAccessTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Frobou\Pdo\Exceptions\FrobouSgdbErrorException
+     * @expectedException Frobou\Db\Exceptions\FrobouDbSgdbErrorException
      */
     public function testUpdateFalhando()
     {
@@ -163,7 +163,7 @@ class FrobouPdoAccessTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Frobou\Pdo\Exceptions\FrobouSgdbErrorException
+     * @expectedException Frobou\Db\Exceptions\FrobouDbSgdbErrorException
      */
     public function testDeleteFalhando()
     {

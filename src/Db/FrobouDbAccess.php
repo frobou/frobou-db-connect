@@ -1,11 +1,11 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
-use Frobou\Pdo\Exceptions\FrobouConnectionException;
-use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
+use Frobou\Db\Exceptions\FrobouDbConnectionException;
+use Frobou\Db\Exceptions\FrobouDbSgdbErrorException;
 
-abstract class FrobouPdoAccess
+abstract class FrobouDbAccess
 {
     public function beginTransaction($db_name = null)
     {
@@ -21,7 +21,7 @@ abstract class FrobouPdoAccess
             }
             return $tr;
         } catch (\PDOException $e) {
-            throw new FrobouConnectionException($e->getMessage());
+            throw new FrobouDbConnectionException($e->getMessage());
         }
     }
 
@@ -34,7 +34,7 @@ abstract class FrobouPdoAccess
                 $this->logger->info('commit', ['status' => $sts]);
             }
             if ($sts === false) {
-//colocar nas estatisticas
+                //colocar nas estatisticas
             }
             return $sts;
         }
@@ -55,7 +55,7 @@ abstract class FrobouPdoAccess
                 }
                 return $sts;
             } catch (\PDOException $e) {
-                throw new FrobouConnectionException($e->getMessage());
+                throw new FrobouDbConnectionException($e->getMessage());
             }
         }
         return false;
@@ -72,7 +72,7 @@ abstract class FrobouPdoAccess
             }
             return $ret;
         } catch (\PDOException $e) {
-            throw new FrobouSgdbErrorException($e->getMessage());
+            throw new FrobouDbSgdbErrorException($e->getMessage());
         }
 
     }
@@ -88,7 +88,7 @@ abstract class FrobouPdoAccess
             }
             return $ret;
         } catch (\PDOException $e) {
-            throw new FrobouSgdbErrorException($e->getMessage());
+            throw new FrobouDbSgdbErrorException($e->getMessage());
         }
     }
 
@@ -103,7 +103,7 @@ abstract class FrobouPdoAccess
             }
             return $ret;
         } catch (\PDOException $e) {
-            throw new FrobouSgdbErrorException($e->getMessage());
+            throw new FrobouDbSgdbErrorException($e->getMessage());
         }
     }
 
@@ -118,7 +118,7 @@ abstract class FrobouPdoAccess
             }
             return $ret;
         } catch (\PDOException $e) {
-            throw new FrobouSgdbErrorException($e->getMessage());
+            throw new FrobouDbSgdbErrorException($e->getMessage());
         }
     }
 

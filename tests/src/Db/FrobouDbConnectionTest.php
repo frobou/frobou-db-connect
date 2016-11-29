@@ -1,15 +1,15 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
-class FrobouPdoConnectionTest extends \PHPUnit_Framework_TestCase
+class FrobouDbConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testVerificaSeConstrutorFunciona()
     {
-        $config = new FrobouPdoConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
-        $con = new FrobouPdoConnection($config);
-        $this->assertInstanceOf('Frobou\Pdo\Db\FrobouPdoConnection', $con);
+        $config = new FrobouDbConfig(json_decode(file_get_contents(__DIR__ . '/database.json')), true);
+        $con = new FrobouDbConnection($config);
+        $this->assertInstanceOf('Frobou\Db\FrobouDbConnection', $con);
     }
 
 //    public function testConectarComVariosBancos()
