@@ -18,7 +18,7 @@ class FrobouDbUtils
             if (in_array($key, $except)) {
                 continue;
             }
-            switch (strtoupper(gettype($key))) {
+            switch (strtoupper(gettype($value))) {
                 case 'BOOLEAN':
                     array_push($params, ['param' => ":{$key}", 'value' => $value, 'type' => \PDO::PARAM_BOOL]);
                     break;
