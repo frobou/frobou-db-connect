@@ -3,3 +3,4 @@ vendor
 .idea
 /bin/
 /tests/*.log
+/tests/*.log
