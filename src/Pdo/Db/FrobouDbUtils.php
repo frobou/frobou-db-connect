@@ -13,6 +13,7 @@ class FrobouDbUtils
                 continue;
             }
             $fields .= "{$key}, ";
+            $named .= ":{$key}, ";
             switch (strtoupper(gettype($value))) {
                 case 'BOOLEAN':
                     array_push($params, ['param' => ":{$key}", 'value' => $value, 'type' => \PDO::PARAM_BOOL]);
@@ -27,6 +28,7 @@ class FrobouDbUtils
                     array_push($params, ['param' => ":{$key}", 'value' => $value, 'type' => \PDO::PARAM_STR]);
             }
         }
+        array_unshift($params, substr($named, 0, strlen($named) -2));
         array_unshift($params, substr($fields, 0, strlen($fields) -2));
         return $params;
     }
