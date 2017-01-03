@@ -1,0 +1,25 @@
+{
+    "connections": {
+        "radius": {
+            "server_type": "sqlite",
+            "server_host": "127.0.0.1",
+            "server_port": "3306",
+            "server_charset": "utf8",
+            "db_name": "radius",
+            "user_name": "fabio",
+            "user_pass": "fabio123",
+            "attributes":{
+
+            }
+        },
+        "ispti": {
+            "server_type": "MySQL",
+            "server_host": "127.0.0.1",
+            "server_port": "3306",
+            "server_charset": "utf8",
+            "db_name": "ispti",
+            "user_name": "fabio",
+            "user_pass": "fabio123"
+        }
+    }
+}
