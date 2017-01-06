@@ -7,6 +7,8 @@ use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
 
 abstract class FrobouPdoAccess
 {
+    private $last_id;
+
     public function beginTransaction($db_name = null)
     {
         $db_name = $this->selectDb($db_name);
@@ -86,8 +88,10 @@ abstract class FrobouPdoAccess
             if (!$this->conn[$db_name]->inTransaction()) {
                 $this->disconnect($db_name);
             }
+            $this->last_id = $db->last_id;
             return $ret;
         } catch (\PDOException $e) {
+            var_dump($query);die;
             throw new FrobouSgdbErrorException($e->getMessage());
         }
     }
@@ -127,6 +131,8 @@ abstract class FrobouPdoAccess
      */
     public function stats()
     {
+        $result['last_id'] = $this->last_id;
+        return $result;
         if (isset($this->error)) {
             return $this->error;
         }
