@@ -8,6 +8,7 @@ class FrobouDbUtils
     {
         $params = [];
         $fields = '';
+        $named = '';
         foreach ($data as $key => $value) {
             if (in_array($key, $except)) {
                 continue;
