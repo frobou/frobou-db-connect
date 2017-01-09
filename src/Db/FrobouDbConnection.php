@@ -1,19 +1,19 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
-use Frobou\Pdo\Db\Sgdb\Mysql;
-use Frobou\Pdo\Db\Sgdb\Postgre;
-use Frobou\Pdo\Db\Sgdb\Sqlite;
-use Frobou\Pdo\Exceptions\FrobouConfigErrorException;
-use Frobou\Pdo\Exceptions\FrobouConnectionException;
-use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
+use Frobou\Db\Sgdb\Mysql;
+use Frobou\Db\Sgdb\Postgre;
+use Frobou\Db\Sgdb\Sqlite;
+use Frobou\Db\Exceptions\FrobouConfigErrorException;
+use Frobou\Db\Exceptions\FrobouConnectionException;
+use Frobou\Db\Exceptions\FrobouSgdbErrorException;
 use Monolog\Logger;
 
-class FrobouPdoConnection extends FrobouPdoAccess
+class FrobouDbConnection extends FrobouDbAccess
 {
     /**
-     * @var FrobouPdoConfig
+     * @var FrobouDbConfig
      */
     protected $config;
     protected $debug;
@@ -25,7 +25,7 @@ class FrobouPdoConnection extends FrobouPdoAccess
     protected $transaction = [];
     protected $db = [];
 
-    public function __construct(FrobouPdoConfig $config, $debug = false, Logger $logger = null)
+    public function __construct(FrobouDbConfig $config, $debug = false, Logger $logger = null)
     {
         $this->config = $config;
         $this->debug = $debug;

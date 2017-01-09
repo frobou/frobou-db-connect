@@ -1,8 +1,8 @@
 <?php
 
-namespace Frobou\Pdo\Db\Sgdb;
+namespace Frobou\Db\Sgdb;
 
-class Sqlite
+class Postgre
 {
 
     public function select($query, $db_name = null, $params = [], $has_count = false, $fetch_mode = \PDO::FETCH_OBJ)

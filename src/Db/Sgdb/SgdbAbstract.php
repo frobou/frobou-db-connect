@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: suporte09
- * Date: 21/11/16
- * Time: 09:13
- */
 
-namespace Frobou\Pdo\Db\Sgdb;
-
+namespace Frobou\Db\Sgdb;
 
 abstract class SgdbAbstract implements SgdbInterface
 {

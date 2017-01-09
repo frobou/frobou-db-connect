@@ -1,15 +1,15 @@
 <?php
 
-namespace Frobou\Pdo\Exceptions;
+namespace Frobou\Db\Exceptions;
 
 use Exception;
 
-class FrobouNoConfigException extends Exception
+class FrobouSgdbErrorException extends Exception
 {
     public function __construct($message = null, $code = 0, Exception $previous = null)
     {
         if (is_null($message)){
-            $message = 'Configuration data is missing or invalid';
+            $message = 'Sgdb type is invalid';
         }
         // garante que tudo está corretamente inicializado
         parent::__construct($message, $code, $previous);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Frobou\Pdo\Db\Interfaces;
+namespace Frobou\Db\Interfaces;
 
 interface DbMessagesInterface {
 

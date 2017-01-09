@@ -1,6 +1,6 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
 class FrobouDbUtils
 {

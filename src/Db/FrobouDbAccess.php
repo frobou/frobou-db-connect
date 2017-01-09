@@ -1,11 +1,11 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
-use Frobou\Pdo\Exceptions\FrobouConnectionException;
-use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
+use Frobou\Db\Exceptions\FrobouConnectionException;
+use Frobou\Db\Exceptions\FrobouSgdbErrorException;
 
-abstract class FrobouPdoAccess
+abstract class FrobouDbAccess
 {
     private $last_id;
 
@@ -91,7 +91,6 @@ abstract class FrobouPdoAccess
             $this->last_id = $db->last_id;
             return $ret;
         } catch (\PDOException $e) {
-            var_dump($query);die;
             throw new FrobouSgdbErrorException($e->getMessage());
         }
     }

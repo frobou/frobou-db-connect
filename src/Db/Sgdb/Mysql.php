@@ -1,8 +1,8 @@
 <?php
 
-namespace Frobou\Pdo\Db\Sgdb;
+namespace Frobou\Db\Sgdb;
 
-use Frobou\Pdo\Exceptions\FrobouSgdbErrorException;
+use Frobou\Exceptions\FrobouSgdbErrorException;
 
 class Mysql extends SgdbAbstract
 {

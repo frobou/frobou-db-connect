@@ -1,11 +1,11 @@
 <?php
 
-namespace Frobou\Pdo\Db;
+namespace Frobou\Db;
 
-use Frobou\Pdo\Exceptions\FrobouConfigErrorException;
+use Frobou\Db\Exceptions\FrobouConfigErrorException;
 use Frobou\Validator\FrobouValidator;
 
-class FrobouPdoConfig
+class FrobouDbConfig
 {
     private $settings;
     private $db_names = [];
