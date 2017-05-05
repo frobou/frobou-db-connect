@@ -67,6 +67,7 @@ abstract class FrobouDbAccess
     {
         $db_name = $this->selectDb($db_name);
         $db = $this->dbInstance($db_name);
+        $this->bd = $db;
         try {
             $ret = $db->select($query, $params, $has_count, $fetch_mode);
             if (!$this->conn[$db_name]->inTransaction()) {
@@ -83,6 +84,7 @@ abstract class FrobouDbAccess
     {
         $db_name = $this->selectDb($db_name);
         $db = $this->dbInstance($db_name);
+        $this->bd = $db;
         try {
             $ret = $db->insert($query, $params);
             if (!$this->conn[$db_name]->inTransaction()) {
@@ -99,6 +101,7 @@ abstract class FrobouDbAccess
     {
         $db_name = $this->selectDb($db_name);
         $db = $this->dbInstance($db_name);
+        $this->bd = $db;
         try {
             $ret = $db->update($query, $params);
             if (!$this->conn[$db_name]->inTransaction()) {
@@ -114,6 +117,7 @@ abstract class FrobouDbAccess
     {
         $db_name = $this->selectDb($db_name);
         $db = $this->dbInstance($db_name);
+        $this->bd = $db;
         try {
             $ret = $db->delete($query, $params);
             if (!$this->conn[$db_name]->inTransaction()) {
@@ -136,6 +140,21 @@ abstract class FrobouDbAccess
             return $this->error;
         }
         return null;
+    }
+
+    public function getError(){
+        if (isset($this->error)) {
+            return $this->error;
+        }
+        return null;
+    }
+
+    public function getLastId(){
+        return $this->last_id;
+    }
+
+    public function getRowCount(){
+        $this->bd->getTotalCount();
     }
 
 }

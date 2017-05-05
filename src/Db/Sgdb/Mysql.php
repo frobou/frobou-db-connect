@@ -51,7 +51,7 @@ class Mysql extends SgdbAbstract
         $this->error[2] = $text;
     }
 
-    private function getTotalCount()
+    public function getTotalCount()
     {
         return $this->connection->query('SELECT FOUND_ROWS() as rowcount;')->fetch(\PDO::FETCH_COLUMN);
     }
@@ -120,6 +120,13 @@ class Mysql extends SgdbAbstract
     public function delete($query, $params = [])
     {
         return $this->execute('delete', $query, $params);
+    }
+
+    public function getError(){
+        if (isset($this->error[1])) {
+            return ['code' =>$this->error[1], 'message' => $this->error[2]];
+        }
+        return null;
     }
 
 }
