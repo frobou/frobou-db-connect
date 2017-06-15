@@ -61,5 +61,4 @@ class FrobouDbConfig
         return $this->settings;
     }
 
-
 }

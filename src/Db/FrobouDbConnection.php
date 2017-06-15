@@ -38,7 +38,7 @@ class FrobouDbConnection extends FrobouDbAccess
         if (is_null($db_name)) {
             $db_name = $this->config->getDefaultDb();
         } else {
-            $this->verifica_se_banco_existe($db_name);
+            $this->verificaSeBancoExiste($db_name);
         }
         $this->configs = $this->config->getSettings();
         try {
@@ -93,12 +93,12 @@ class FrobouDbConnection extends FrobouDbAccess
         try {
             $this->conn[$db_name] = null;
             return true;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             throw new FrobouConnectionException('Error disconecting from sgdb');
         }
     }
 
-    private function verifica_se_banco_existe($db_name)
+    private function verificaSeBancoExiste($db_name)
     {
         if (!in_array($db_name, $this->config->getDbNames())) {
             throw new FrobouConfigErrorException('Database not found');
