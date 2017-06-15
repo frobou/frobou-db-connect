@@ -130,10 +130,6 @@ abstract class FrobouDbAccess
      */
     public function stats()
     {
-//        if (isset($this->error)) {
-//            return $this->error;
-//        }
-//        return null;
         $result['last_id'] = $this->last_id;
         return $result;
     }
