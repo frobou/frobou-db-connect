@@ -1,6 +1,7 @@
-## frobou-pdo-access ##
+## frobou-db-connect ##
 
-ver 1.X
+ver 1.X  
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/85e55dac-6fbc-4791-b861-3b89e970b5dd/small.png)](https://insight.sensiolabs.com/projects/85e55dac-6fbc-4791-b861-3b89e970b5dd)  
 
 usage:
 

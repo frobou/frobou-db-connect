@@ -136,24 +136,23 @@ abstract class FrobouDbAccess
     {
         $result['last_id'] = $this->last_id;
         return $result;
+    }
+
+    public function getError()
+    {
         if (isset($this->error)) {
             return $this->error;
         }
         return null;
     }
 
-    public function getError(){
-        if (isset($this->error)) {
-            return $this->error;
-        }
-        return null;
-    }
-
-    public function getLastId(){
+    public function getLastId()
+    {
         return $this->last_id;
     }
 
-    public function getRowCount(){
+    public function getRowCount()
+    {
         $this->bd->getTotalCount();
     }
 

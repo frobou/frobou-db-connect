@@ -2,7 +2,8 @@
 
 namespace Frobou\Db\Sgdb;
 
-use Frobou\Exceptions\FrobouSgdbErrorException;
+
+use Frobou\Db\Exceptions\FrobouSgdbErrorException;
 
 class Mysql extends SgdbAbstract
 {
@@ -122,9 +123,10 @@ class Mysql extends SgdbAbstract
         return $this->execute('delete', $query, $params);
     }
 
-    public function getError(){
+    public function getError()
+    {
         if (isset($this->error[1])) {
-            return ['code' =>$this->error[1], 'message' => $this->error[2]];
+            return ['code' => $this->error[1], 'message' => $this->error[2]];
         }
         return null;
     }
