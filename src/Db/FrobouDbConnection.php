@@ -54,7 +54,8 @@ class FrobouDbConnection extends FrobouDbAccess
                         . "charset={$charset};"
                         . "port={$this->configs->connections->{$db_name}->server_port}",
                         $this->configs->connections->{$db_name}->user_name,
-                        $this->configs->connections->{$db_name}->user_pass);
+                        $this->configs->connections->{$db_name}->user_pass,
+                        [[\PDO::MYSQL_ATTR_LOCAL_INFILE => TRUE]]);
                     break;
                 case 'postgre':
                     break;
