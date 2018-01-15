@@ -90,7 +90,9 @@ abstract class FrobouDbAccess
             if (!$this->conn[$db_name]->inTransaction()) {
                 $this->disconnect($db_name);
             }
-            $this->last_id = $db->last_id;
+            if (isset($db->last_id)){
+                $this->last_id = $db->last_id;
+            }
             return $ret;
         } catch (\PDOException $e) {
             throw new FrobouSgdbErrorException($e->getMessage());
