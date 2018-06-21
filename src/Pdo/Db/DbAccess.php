@@ -89,7 +89,7 @@ class DbAccess
     private function connect()
     {
         $attrs = [];
-        if (count($this->config->getAttributes() > 0)) {
+        if (count($this->config->getAttributes()) > 0) {
             foreach ($this->config->getAttributes() as $attr) {
                 $attrs[$attr['param']] = $attr['value'];
             }
